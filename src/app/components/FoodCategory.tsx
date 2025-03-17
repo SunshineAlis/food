@@ -61,7 +61,6 @@ export default function FoodCategory() {
         fetchCategories();
     }, []);
 
-    // 添加食物
     const handleAddFood = async (newFood: Food) => {
         if (!selectedCategory) {
             console.error("No category selected!");
@@ -74,7 +73,6 @@ export default function FoodCategory() {
                 categoryId: selectedCategory,
             });
 
-            // 更新食物数量
             setFoodCountByCategory((prevState) => ({
                 ...prevState,
                 [selectedCategory]: (prevState[selectedCategory] || 0) + 1,
@@ -87,7 +85,6 @@ export default function FoodCategory() {
         }
     };
 
-    // 删除分类
     const handleDelete = async (catId: string) => {
         try {
             await axios.delete(`http://localhost:3030/category/${catId}`);
@@ -106,7 +103,6 @@ export default function FoodCategory() {
         }
     };
 
-    // 自动隐藏成功消息
     useEffect(() => {
         if (successMessage) {
             const timer = setTimeout(() => {
