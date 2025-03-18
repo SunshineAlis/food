@@ -21,7 +21,7 @@ export type Food = {
   imageUrl?: string;
 };
 
-export default function FoodsByCategory() {
+export default function Foods() {
   const [categoriesWithFoods, setCategoriesWithFoods] = useState<Category[]>(
     []
   );
@@ -86,11 +86,11 @@ export default function FoodsByCategory() {
       console.error("Error deleting food:", error);
     }
   };
+  const allFoods = categoriesWithFoods.map((category) => category.foods).flat();
 
   return (
     <div className="p-4 bg-gray-100 max-w-[900px] w-full m-auto rounded-2xl">
       <h2 className="text-xl font-bold mb-4">Foods by Category</h2>
-
       {categoriesWithFoods.length > 0 ? (
         categoriesWithFoods.map((category) => (
           <div key={category._id} className="mb-6">

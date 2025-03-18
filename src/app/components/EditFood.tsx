@@ -19,7 +19,7 @@ export const EditFood = ({ editingFood, setEditingFood }: EditFoodProps) => {
         ...editingFood!,
         image: file,
       });
-      setImagePreview(URL.createObjectURL(file)); // Update the image preview
+      setImagePreview(URL.createObjectURL(file)); // 
     }
   };
 
@@ -108,7 +108,7 @@ export const EditFood = ({ editingFood, setEditingFood }: EditFoodProps) => {
             name="image"
             onChange={handleImageChangeEdit}
             placeholder="Food Image"
-            className="border p-2  px-20 rounded mb-4"
+            className="border px-8 rounded mb-4"
           />
           <div className="flex justify-center">
             <button type="submit" className="bg-blue-500 text-white p-2">

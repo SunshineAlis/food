@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import axios from "axios";
-import AddFoodModal from "@/app/components/AddFoodModal";
+import AddFoodModal from "@/app/components/hereggui/AddFoodModal";
 import CategoryComponent from "@/app/components/CategoryCom";
 
 type Category = {
