@@ -2,10 +2,21 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 
-interface Category {
+type Category = {
   _id: string;
   categoryName: string;
-}
+  foods?: Food[];
+};
+
+export type Food = {
+  _id: string;
+  foodName: string;
+  price: number;
+  ingredients: string;
+  image?: string | null | File;
+  categoryId?: string;
+  imageUrl?: string;
+};
 
 type CategoryProps = {
   categories: Category[];
@@ -26,10 +37,14 @@ const CategoryComponent: React.FC<CategoryProps> = ({
   const [showModal, setShowModal] = useState(false);
   const [loading, setLoading] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
+  const [categoriesWithFoods, setCategoriesWithFoods] = useState<Category[]>(
+    []
+  );
   const [category, setCategory] = useState<{ categoryName: string }>({
     categoryName: "",
   });
   const [categories, setCategories] = useState<Category[]>(initialCategories);
+  const [countAll, setCountAll] = useState<any[]>([]); // Add a type to match the expected data structure
 
   useEffect(() => {
     setCategories(initialCategories);
@@ -45,6 +60,43 @@ const CategoryComponent: React.FC<CategoryProps> = ({
       console.error("Error fetching categories:", error);
     }
   };
+
+  useEffect(() => {
+    const fetchCategoriesWithFoods = async () => {
+      try {
+        const categoryResponse = await axios.get(
+          "http://localhost:3030/category"
+        );
+        const categories = categoryResponse.data.data;
+
+        const categoriesData = await Promise.all(
+          categories.map(async (category: Category) => {
+            try {
+              const foodResponse = await axios.get<{ foods: Food[] }>(
+                `http://localhost:3030/foods/${category._id}/foods`
+              );
+              return { ...category, foods: foodResponse.data.foods || [] };
+            } catch (error) {
+              console.error(
+                `Error fetching foods for category ${category._id}:`,
+                error
+              );
+              return { ...category, foods: [] };
+            }
+          })
+        );
+        setCategoriesWithFoods(categoriesData);
+      } catch (error) {
+        console.error("Error fetching categories with foods:", error);
+      }
+    };
+    fetchCategoriesWithFoods();
+  }, []);
+
+  const allFoods = categoriesWithFoods.flatMap(
+    (category) => category.foods || []
+  );
+  const allFoodsCount = allFoods.length;
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -77,6 +129,10 @@ const CategoryComponent: React.FC<CategoryProps> = ({
     <div className="p-4 bg-gray-100 max-w-[850px] w-full m-auto rounded-lg">
       <h3 className="text-lg font-semibold mb-2">Dishes Category</h3>
       <div className="flex flex-wrap gap-3 items-center">
+        <p className="px-3 py-1 rounded-lg cursor-pointer bg-gray-200 hover:bg-gray-300 transition">
+          All Dishes
+          <span className="px-2">({allFoodsCount})</span>
+        </p>
         {categories.map((cat) => (
           <div key={cat._id} className="relative">
             <span

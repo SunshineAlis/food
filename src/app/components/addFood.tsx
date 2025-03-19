@@ -28,7 +28,6 @@ const initialValue = {
 
 type AddFoodProps = {
   setShowAddFoodModal: (value: boolean) => void;
-
 };
 
 export const AddFood = ({ setShowAddFoodModal }: AddFoodProps) => {
@@ -184,10 +183,12 @@ export const AddFood = ({ setShowAddFoodModal }: AddFoodProps) => {
             </select>
           </div>
 
-          <div className="mb-4">
-            <label htmlFor="image" className="block text-sm text-gray-700">
-              Image
-            </label>
+          <div className="mb-4 flex flex-col items-center">
+            <div className="flex items-start">
+              <label htmlFor="image" className="text-sm text-gray-700">
+                Image
+              </label>
+            </div>
             <input
               type="file"
               accept="image/*"
@@ -198,7 +199,7 @@ export const AddFood = ({ setShowAddFoodModal }: AddFoodProps) => {
               <img
                 src={newFood.imageUrl}
                 alt="Preview"
-                className="mt-2 h-32 w-32 object-cover t"
+                className="mt-2 h-32 w-32 object-cover"
               />
             )}
           </div>
