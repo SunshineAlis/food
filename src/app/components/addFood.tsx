@@ -28,6 +28,7 @@ const initialValue = {
 
 type AddFoodProps = {
   setShowAddFoodModal: (value: boolean) => void;
+
 };
 
 export const AddFood = ({ setShowAddFoodModal }: AddFoodProps) => {
