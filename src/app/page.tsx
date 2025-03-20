@@ -10,8 +10,7 @@ export default function Page() {
     <div className="p-4 flex w-[100%] m-auto max-w-[1200px]">
       <Left />
       <div>
-        <FoodCategory />
-        <Foods />
+        hi
       </div>
     </div>
   );

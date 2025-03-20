@@ -44,7 +44,7 @@ const CategoryComponent: React.FC<CategoryProps> = ({
     categoryName: "",
   });
   const [categories, setCategories] = useState<Category[]>(initialCategories);
-  const [countAll, setCountAll] = useState<any[]>([]); // Add a type to match the expected data structure
+  const [countAll, setCountAll] = useState<any[]>([]);
 
   useEffect(() => {
     setCategories(initialCategories);
@@ -229,8 +229,8 @@ const CategoryComponent: React.FC<CategoryProps> = ({
                       ? "Updating..."
                       : "Adding..."
                     : editingCategory
-                    ? "Update"
-                    : "Add"}
+                      ? "Update"
+                      : "Add"}
                 </button>
               </div>
             </form>
