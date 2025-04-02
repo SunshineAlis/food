@@ -1,5 +1,12 @@
-
-
+type Food = {
+    _id: string;
+    foodName: string;
+    price: number;
+    ingredients: string;
+    image?: string | null | File;
+    categoryId?: string;
+    imageUrl?: string;
+};
 
 type Category = {
     _id?: string;
@@ -14,44 +21,4 @@ type CategoryId = {
     name: string;
 
 }
-type CategoryWithExtra = {
-    _id: string;
-    name: string;
-    description: string;
 
-}
-
-type Food = {
-    _id: string;
-    foodName: string;
-    price: number;
-    ingredients: string;
-    categoryId: string;
-    image: file
-    _id?: string;
-    image?: string;
-};
-
-type Food = {
-    _id: string;
-    foodName: string;
-    price: number;
-    ingredients: string;
-    image?: string;
-    categoryId: string;
-};
-type Category = {
-    _id: string;
-    categoryName: string;
-};
-
-type Food = {
-    _id: string;
-    foodName: string;
-    price: number;
-    ingredients: string;
-    image?: string;
-    categoryId: string;
-};
-type SetCategoryFn = (id: string) => void;
-type Category = CategoryId | CategoryWithExtra;

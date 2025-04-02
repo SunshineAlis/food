@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import axios from "axios";
-import { Food } from "./FoodClient"; //
+
 
 type OrderModalProps = {
     food: Food;
