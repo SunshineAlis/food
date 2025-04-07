@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 
-import Foods from "@/app/components/Foods";
+import Foods from "@/app/components/Foods/Foods";
 import Left from "./components/Left";
 
 import Categories from "./components/Categories";

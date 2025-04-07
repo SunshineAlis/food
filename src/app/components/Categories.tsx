@@ -2,8 +2,6 @@
 import { useState } from "react";
 import axios from "axios";
 import { useCategoryContext } from "../Provider/CategoryProvider";
-
-
 type Category = {
   foodCount: number;
   _id: string;
@@ -69,26 +67,27 @@ const Categories = () => {
   };
 
   return (
-    <div className="p-4 bg-gray-100 max-w-[900px] w-full m-auto rounded-lg">
-      <h3 className="text-lg font-semibold mb-2">Dishes Category</h3>
-      <div className="flex flex-wrap gap-3 items-center">
-        <p className="px-3 py-1 rounded-lg cursor-pointer bg-gray-200 hover:bg-gray-300 transition">
+    <div className="p-4 bg-gray-100 max-w-[900px] w-full mx-auto rounded-lg">
+      <h3 className="text-lg font-semibold mb-2 text-center sm:text-left">
+        Dishes Category
+      </h3>
+      <div className="flex flex-wrap gap-2 sm:gap-3 items-center justify-center sm:justify-start">
+        <p className="px-3 py-1 rounded-lg cursor-pointer bg-gray-200 hover:bg-gray-300 transition text-sm sm:text-base">
           All Dishes <span className="px-2">({allFoodsCount})</span>
         </p>
-
         {categories.map((cat) => (
           <div key={cat._id} className="relative">
             <span
               onClick={() => setDropdown(dropdown === cat._id ? null : cat._id)}
-              className="px-3 py-1 rounded-lg cursor-pointer bg-gray-200 hover:bg-gray-300 transition"
+              className="px-3 py-1 rounded-lg cursor-pointer bg-gray-200 hover:bg-gray-300 transition text-sm sm:text-base whitespace-nowrap"
             >
               {cat.categoryName} ({cat.foodCount || 0})
             </span>
 
             {dropdown === cat._id && (
-              <div key={`${cat._id}-dropdown`} className="absolute bg-white shadow-lg rounded-lg p-2 mt-1 w-40 z-10">
+              <div className="absolute bg-white shadow-lg rounded-lg p-2 mt-1 w-40 z-10">
                 <button
-                  className="block px-3 py-1 text-blue-500 hover:bg-gray-100 w-full text-left"
+                  className="block px-3 py-1 text-blue-500 hover:bg-gray-100 w-full text-left text-sm"
                   onClick={() => {
                     setEditingCategory(cat);
                     setCategory({ categoryName: cat.categoryName });
@@ -99,7 +98,7 @@ const Categories = () => {
                   Edit
                 </button>
                 <button
-                  className="block px-3 py-1 text-red-500 hover:bg-gray-100 w-full text-left"
+                  className="block px-3 py-1 text-red-500 hover:bg-gray-100 w-full text-left text-sm"
                   onClick={() => handleDelete(cat._id)}
                 >
                   Delete
@@ -108,6 +107,7 @@ const Categories = () => {
             )}
           </div>
         ))}
+
         <button
           onClick={() => {
             setEditingCategory(null);
@@ -121,9 +121,9 @@ const Categories = () => {
       </div>
 
       {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-10">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-96">
-            <h2 className="text-xl font-semibold mb-4">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-10 p-4">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
+            <h2 className="text-xl font-semibold mb-4 text-center sm:text-left">
               {editingCategory ? "Edit Category" : "Add Category"}
             </h2>
             <form onSubmit={handleSubmit} className="flex flex-col gap-4">
@@ -136,7 +136,7 @@ const Categories = () => {
                 className="border p-2 rounded"
                 required
               />
-              <div className="flex justify-end gap-2">
+              <div className="flex flex-col sm:flex-row justify-end gap-2">
                 <button
                   type="button"
                   className="bg-gray-400 text-white px-4 py-2 rounded"
@@ -149,7 +149,13 @@ const Categories = () => {
                   disabled={loading}
                   className="bg-blue-500 text-white px-4 py-2 rounded disabled:opacity-50"
                 >
-                  {loading ? (editingCategory ? "Updating..." : "Adding...") : editingCategory ? "Update" : "Add"}
+                  {loading
+                    ? editingCategory
+                      ? "Updating..."
+                      : "Adding..."
+                    : editingCategory
+                      ? "Update"
+                      : "Add"}
                 </button>
               </div>
             </form>
@@ -157,6 +163,7 @@ const Categories = () => {
         </div>
       )}
     </div>
+
   );
 };
 

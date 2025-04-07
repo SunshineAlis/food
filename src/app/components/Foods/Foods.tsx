@@ -1,43 +1,20 @@
+"use client";
 import React, { useState } from "react";
 import FoodItem from "./FoodItem";
 import { AddFood } from "./AddFood";
 import { EditFood } from "./EditFood";
-import { useCategoryContext } from "../Provider/CategoryProvider";
-import axios from "axios";
+import { useCategoryContext } from "../../Provider/CategoryProvider";
 import { useRouter } from "next/navigation";
-
-
-type Food = {
-  _id: string;
-  foodName: string;
-  price: number;
-  ingredients: string;
-  image?: string | null | File;
-  categoryId?: string;
-  imageUrl?: string;
-};
-
-
+import { Food } from "@/type"
 
 export default function Foods() {
   const { categories, deleteFoodFromCategory, refetch } = useCategoryContext();
   const [selectedFood, setSelectedFood] = useState<Food | null>(null);
-  const [dropdown, setDropdown] = useState<string | null>(null);
   const [showAddFoodModal, setShowAddFoodModal] = useState(false);
   const router = useRouter();
 
   const handleEdit = (food: Food) => {
     setSelectedFood(food);
-  };
-
-  const handleDelete = async (foodId: string) => {
-    try {
-      await axios.delete(`http://localhost:3030/foods/${foodId}`);
-      deleteFoodFromCategory(foodId, selectedFood?.categoryId || "");
-      refetch();
-    } catch (error) {
-      console.error("Error deleting food:", error);
-    }
   };
 
   const allFoods = categories.flatMap((category) => category.foods || []);
@@ -51,13 +28,13 @@ export default function Foods() {
         <h3 className="text-lg font-semibold mb-2">All Dishes ({allFoodsCount})</h3>
         <button
           className="text-blue-500 underline py-2 cursor-pointer"
-          onClick={() => router.push("/all-dishes")}
+          onClick={() => router.push("/allDishes")}
         >
           See All
         </button>
       </div>
 
-      <div className="grid grid-cols-4 gap-2">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         <div className="h-70 w-full border border-red-500 rounded-xl flex justify-center items-center">
           <div className="flex flex-col justify-center items-center">
             <button
@@ -89,13 +66,13 @@ export default function Foods() {
               {category.categoryName} ({category.foodCount || 0})
             </h3>
           </div>
-          <div className="grid grid-cols-4 gap-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {category.foods && category.foods.length > 0 ? (
               category.foods.map((food) => (
                 <FoodItem
                   key={food._id}
                   food={food}
-                  onEdit={() => handleEdit(food)} // Засварлах үйлдэл
+                  onEdit={() => handleEdit(food)}
                 />
               ))
             ) : (
@@ -106,11 +83,10 @@ export default function Foods() {
       ))}
 
       {showAddFoodModal && <AddFood setShowAddFoodModal={setShowAddFoodModal} />}
-
       {selectedFood && (
         <EditFood
-          editingFood={selectedFood}  // Засварлах хоол
-          setEditingFood={setSelectedFood} // Хоол засахын тулд шинэ утга тохируулах
+          editingFood={selectedFood}
+          setEditingFood={setSelectedFood}
         />
       )}
     </div>

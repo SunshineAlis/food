@@ -1,4 +1,5 @@
 import { CategoryContext, CategoryProvider } from "./Provider/CategoryProvider";
+import { OrderContext, OrderProvider } from "./Provider/OrderProvider"
 import { Geist, Geist_Mono } from "next/font/google";
 import { Metadata } from "next";
 import "./globals.css";
@@ -28,9 +29,11 @@ export default function RootLayout({
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
 
         <CategoryProvider>
-          {children}
+          <OrderProvider>
+            {children}
+          </OrderProvider>
         </CategoryProvider>
       </body>
-    </html>
+    </html >
   );
 }

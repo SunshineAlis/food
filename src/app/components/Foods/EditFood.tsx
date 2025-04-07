@@ -1,28 +1,13 @@
 import React, { useState, useRef } from "react";
 import axios from "axios";
-import { useCategoryContext } from "../Provider/CategoryProvider";
+import { useCategoryContext } from "../../Provider/CategoryProvider";
 import { FaTrashCan } from "react-icons/fa6";
-
-type Food = {
-  _id: string;
-  foodName: string;
-  price: number;
-  ingredients: string;
-  image?: string | null | File;
-  categoryId?: string;
-  imageUrl?: string;
-};
-
-type EditFoodProps = {
-  editingFood: Food;
-  setEditingFood: React.Dispatch<React.SetStateAction<Food | null>>;
-};
-
+import { EditFoodProps } from "@/type";
+import { ImageUploader } from "./ImageUpload";
 export const EditFood = ({ editingFood, setEditingFood }: EditFoodProps) => {
   const [imagePreview, setImagePreview] = useState<string | null>(editingFood.imageUrl || null);
   const { updateFoodInCategory, refetch, deleteFoodFromCategory } = useCategoryContext();
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
-
+  const [message, setMessage] = useState<string | null>(null);
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files ? e.target.files[0] : null;
     if (file) {
@@ -33,13 +18,6 @@ export const EditFood = ({ editingFood, setEditingFood }: EditFoodProps) => {
       setImagePreview(URL.createObjectURL(file));
     }
   };
-
-  const handleImageClick = () => {
-    if (fileInputRef.current) {
-      fileInputRef.current.click();
-    }
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
@@ -48,7 +26,6 @@ export const EditFood = ({ editingFood, setEditingFood }: EditFoodProps) => {
       formData.append("price", String(editingFood.price));
       formData.append("ingredients", editingFood.ingredients);
       formData.append("categoryId", editingFood.categoryId || "");
-
       if (editingFood.image) {
         formData.append("image", editingFood.image);
       }
@@ -61,22 +38,31 @@ export const EditFood = ({ editingFood, setEditingFood }: EditFoodProps) => {
 
       updateFoodInCategory(editingFood);
       refetch();
-      setEditingFood(null);
+      setMessage("Food successfully updated!");
+      setTimeout(() => {
+        setMessage(null);
+        setEditingFood(null);
+      }, 2000);
     } catch (error) {
-      console.error("Error editing food:", error);
+      setMessage("Error updating food. Please try again!");
+      setTimeout(() => setMessage(null), 2000);
     }
   };
-
   const handleDelete = async () => {
     try {
       if (editingFood && editingFood._id) {
         await axios.delete(`http://localhost:3030/foods/${editingFood._id}`);
         deleteFoodFromCategory(editingFood._id, editingFood.categoryId || "");
         refetch();
-        setEditingFood(null);
+        setMessage("Food successfully deleted!");
+        setTimeout(() => {
+          setMessage(null);
+          setEditingFood(null);
+        }, 2000);
       }
     } catch (error) {
-      console.error("Error deleting food:", error);
+      setMessage("Error deleting food. Please try again!");
+      setTimeout(() => setMessage(null), 2000);
     }
   };
 
@@ -100,34 +86,23 @@ export const EditFood = ({ editingFood, setEditingFood }: EditFoodProps) => {
                       foodName: e.target.value,
                     })
                   }
-                  onInput={(e) => {
-                    const target = e.target as HTMLTextAreaElement;
-                    target.style.height = "40px";
-                    target.style.height = `${target.scrollHeight}px`;
-                  }}
                   rows={1}
                   className="border p-2 w-full rounded-md resize-none overflow-hidden"
-                  style={{ minHeight: "40px", maxHeight: "140px", lineHeight: "1.5rem" }}
                 />
               </div>
-
-              <div className="w-1/3">
-                <label htmlFor="price" className="block text-sm font-medium text-gray-700">Price</label>
-                <input
-                  id="price"
-                  type="number"
-                  value={editingFood.price}
-                  onChange={(e) =>
-                    setEditingFood({
-                      ...editingFood,
-                      price: parseFloat(e.target.value),
-                    })
-                  }
-                  className="border p-2 w-full rounded-md text-center"
-                />
-              </div>
+              <input
+                id="price"
+                type="number"
+                value={isNaN(editingFood.price) ? '' : editingFood.price}
+                onChange={(e) =>
+                  setEditingFood({
+                    ...editingFood,
+                    price: parseFloat(e.target.value) || 0,
+                  })
+                }
+                className="border p-2 w-full rounded-md text-center"
+              />
             </div>
-
             <div>
               <label htmlFor="ingredients" className="block text-sm font-medium text-gray-700">
                 Ingredients
@@ -142,47 +117,25 @@ export const EditFood = ({ editingFood, setEditingFood }: EditFoodProps) => {
                   })
                 }
                 className="border px-2 w-full rounded-md"
+                rows={4}
               />
             </div>
-
-            <div className="relative">
-              <label htmlFor="image" className="block text-sm font-medium text-gray-700">
-                Upload Image
-              </label>
-              <div className="flex flex-col items-center">
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageChange}
-                  className="hidden"
-                />
-                {imagePreview ? (
-                  <div className="flex border rounded-xl cursor-pointer" onClick={handleImageClick}>
-                    <img
-                      src={imagePreview}
-                      alt="Preview"
-                      className="w-[400px] h-60 object-cover rounded-xl"
-                    />
-                  </div>
-                ) : (
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageChange}
-                    className="w-full border px-2 py-1 rounded-md"
-                  />
-                )}
-              </div>
-            </div>
-
+            <ImageUploader
+              imagePreview={imagePreview}
+              handleImageChange={handleImageChange}
+            />
             <div className="flex justify-center gap-4 mt-4">
-              <button type="button" onClick={handleDelete} className="bg-red-500 text-white p-2 rounded-md">
+              <button type="button" onClick={handleDelete} className="bg-red-500 text-white p-2 rounded-md hover:bg-red-600">
                 <FaTrashCan />
               </button>
-              <button type="submit" className="bg-blue-500 text-white p-2 rounded-md">Save</button>
+              <button type="submit" className="bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600">
+                Save
+              </button>
             </div>
           </div>
+          {message && (
+            <p className="text-green-600 mt-3 text-center font-medium">{message}</p>
+          )}
         </form>
       </div>
     </div>

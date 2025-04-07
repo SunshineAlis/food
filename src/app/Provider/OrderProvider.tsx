@@ -1,169 +1,97 @@
-// import React, { createContext, useContext, useState, useEffect } from "react";
-// import axios from "axios";
+"use client";
+import React, { createContext, useContext, useState, useEffect } from "react";
+import axios from "axios";
+type OrderContextType = {
+    userOrders: UserOrder[];
+    loading: boolean;
+    error: string | null;
+    refetch: () => void;
+    handleDeleteOrder: (orderId: string) => void;
+    handleStatusChange: (orderId: string, newStatus: string) => void;
+};
 
-// type Order = {
-//     orderItem: { food: [] },
-//     user: user
-//     status: string,
 
-//     category
-// };
+export const OrderContext = createContext<OrderContextType | undefined>(undefined);
 
-// type Food = {
-//     _id: string;
-//     foodName: string;
-//     price: number;
-//     ingredients: string;
-//     image?: string | null | File;
-//     categoryId?: string;
-//     imageUrl?: string;
-// };
+export const useOrderContext = () => {
+    const context = useContext(OrderContext);
+    if (!context) {
+        throw new Error("useOrderContext must be used within an OrderProvider");
+    }
+    return context;
+};
 
-// type Category = {
-//     foodCount: number;
-//     _id: string;
-//     categoryName: string;
-//     foods?: Food[];
-// };
+export const OrderProvider = ({ children }: { children: React.ReactNode }) => {
+    const [userOrders, setUserOrders] = useState<UserOrder[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
-// type CategoryContextType = {
-//     categories: Category[];
-//     loading: boolean;
-//     error: string | null;
-//     refetch: () => void;
-//     addCategory: (newCategory: Category) => void;
-//     updateCategory: (updatedCategory: Category) => void;
-//     deleteCategory: (categoryId: string) => void;
-//     addFoodToCategory: (newFood: Food) => void;
-//     updateFoodInCategory: (updatedFood: Food) => void;
-//     deleteFoodFromCategory: (foodId: string, categoryId: string) => void;
-// };
+    const fetchOrders = async () => {
+        try {
+            const res = await axios.get<{ data: UserOrder[] }>("http://localhost:3030/order");
+            setUserOrders(res.data.data);
+            setError(null);
+        } catch (err) {
+            setError("Failed to load orders. Please try again later.");
+        } finally {
+            setLoading(false);
+        }
+    };
 
-// export const CategoryContext = createContext<CategoryContextType | undefined>(undefined);
+    useEffect(() => {
+        fetchOrders();
+    }, []);
 
-// export const useCategoryContext = () => {
-//     const context = useContext(CategoryContext);
-//     if (!context) {
-//         throw new Error("useCategoryContext must be used within a CategoryProvider");
-//     }
-//     return context;
-// };
+    const handleDeleteOrder = async (orderId: string) => {
+        try {
+            const response = await axios.delete(`http://localhost:3030/order/${orderId}`);
+            if (response.data.success) {
+                setUserOrders(prev =>
+                    prev
+                        .map(user => ({
+                            ...user,
+                            orders: user.orders.filter(order => order._id !== orderId),
+                        }))
+                        .filter(user => user.orders.length > 0)
+                );
+            } else {
+                setError(response.data.message || "Failed to delete order");
+            }
+        } catch (err: any) {
+            console.error("Delete error:", err);
+            setError(err.response?.data?.message || err.message || "Delete failed");
+        }
+    };
 
-// export const CategoryProvider = ({ children }: { children: React.ReactNode }) => {
-//     const [categories, setCategories] = useState<Category[]>([]);
-//     const [loading, setLoading] = useState<boolean>(false);
-//     const [error, setError] = useState<string | null>(null);
+    const handleStatusChange = async (orderId: string, newStatus: string) => {
+        try {
+            await axios.put(`http://localhost:3030/order/${orderId}`, { orderStatus: newStatus });
+            setUserOrders(prev =>
+                prev.map(user => ({
+                    ...user,
+                    orders: user.orders.map(order =>
+                        order._id === orderId ? { ...order, orderStatus: newStatus } : order
+                    ),
+                }))
+            );
+        } catch (err) {
+            console.error("Status update error:", err);
+            setError("Failed to update order status.");
+        }
+    };
 
-//     const fetchData = async () => {
-//         setLoading(true);
-//         setError(null);
-//         try {
-//             const response = await axios.get("http://localhost:3030/category");
-//             const categoriesData = await Promise.all(
-//                 response.data.data.map(async (category: Category) => {
-//                     try {
-//                         const foodResponse = await axios.get<{ foods: Food[] }>(
-//                             `http://localhost:3030/foods/${category._id}/foods`
-//                         );
-//                         const foods = foodResponse.data.foods || [];
-//                         return {
-//                             ...category,
-//                             foods,
-//                             foodCount: foods.length,
-//                         };
-//                     } catch (error) {
-//                         console.error(`Error fetching foods for category ${category._id}:`, error);
-//                         return { ...category, foods: [], foodCount: 0 };
-//                     }
-//                 })
-//             );
-//             setCategories(categoriesData);
-//         } catch (error) {
-//             setError("Failed to load categories");
-//             console.error(error);
-//         } finally {
-//             setLoading(false);
-//         }
-//     };
-
-//     useEffect(() => {
-//         fetchData();
-//     }, []);
-
-//     const addCategory = (newCategory: Category) => {
-//         setCategories((prevCategories) => [...prevCategories, newCategory]);
-//     };
-
-//     const updateCategory = (updatedCategory: Category) => {
-//         setCategories((prevCategories) =>
-//             prevCategories.map((category) =>
-//                 category._id === updatedCategory._id ? { ...category, ...updatedCategory } : category
-//             )
-//         );
-//     };
-
-//     const deleteCategory = (categoryId: string) => {
-//         setCategories((prevCategories) => prevCategories.filter((category) => category._id !== categoryId));
-//     };
-
-//     const addFoodToCategory = (newFood: Food) => {
-//         setCategories((prevCategories) =>
-//             prevCategories.map((category) =>
-//                 category._id === newFood.categoryId
-//                     ? {
-//                         ...category,
-//                         foods: [...(category.foods || []), newFood],
-//                         foodCount: (category.foods?.length || 0) + 1,
-//                     }
-//                     : category
-//             )
-//         );
-//     };
-
-//     const updateFoodInCategory = (updatedFood: Food) => {
-//         setCategories((prevCategories) =>
-//             prevCategories.map((category) =>
-//                 category._id === updatedFood.categoryId
-//                     ? {
-//                         ...category,
-//                         foods: category.foods?.map((food) => (food._id === updatedFood._id ? updatedFood : food)) || [],
-//                         foodCount: category.foods?.length || 0,
-//                     }
-//                     : category
-//             )
-//         );
-//     };
-
-//     const deleteFoodFromCategory = (foodId: string, categoryId: string) => {
-//         setCategories((prevCategories) =>
-//             prevCategories.map((category) =>
-//                 category._id === categoryId
-//                     ? {
-//                         ...category,
-//                         foods: category.foods?.filter((food) => food._id !== foodId) || [],
-//                         foodCount: (category.foods?.length || 0) - 1,
-//                     }
-//                     : category
-//             )
-//         );
-//     };
-
-//     return (
-//         <CategoryContext.Provider
-//             value={{
-//                 categories,
-//                 loading,
-//                 error,
-//                 refetch: fetchData,
-//                 addCategory,
-//                 updateCategory,
-//                 deleteCategory,
-//                 addFoodToCategory,
-//                 updateFoodInCategory,
-//                 deleteFoodFromCategory,
-//             }}
-//         >
-//             {children}
-//         </CategoryContext.Provider>
-//     );
-// };
+    return (
+        <OrderContext.Provider
+            value={{
+                userOrders,
+                loading,
+                error,
+                refetch: fetchOrders,
+                handleDeleteOrder,
+                handleStatusChange,
+            }}
+        >
+            {children}
+        </OrderContext.Provider>
+    );
+};
