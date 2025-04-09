@@ -41,7 +41,7 @@ export const ImageUploader = ({
                     <button
                         type="button"
                         onClick={handleImageClick}
-                        className=" w-full px-4 py-2 bg-gray-100 border rounded-md"
+                        className=" w-full  h-full px-4 py-2 bg-gray-100 border rounded-md"
                     >
                         Select Image
                     </button>

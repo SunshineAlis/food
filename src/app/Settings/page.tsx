@@ -1,11 +1,14 @@
 "use client";
 import { useState } from "react";
 import axios from "axios";
+import { CoverImg } from "../components/coverImg";
 
 export default function AdminPage() {
     const [selectedImage, setSelectedImage] = useState<File | null>(null);
     const [selectedPages, setSelectedPages] = useState<string[]>([]);
-    const [selectionMode, setSelectionMode] = useState<"highlight" | "tags">("highlight");
+    const [selectionMode, setSelectionMode] = useState<"highlight" | "tags">("tags"); // Default to "tags"
+    const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+    const [uploading, setUploading] = useState(false);
 
     const handlePageSelection = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const value = e.target.value;
@@ -15,12 +18,23 @@ export default function AdminPage() {
             setSelectedPages([...selectedPages, value]);
         }
     };
-
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files ? e.target.files[0] : null;
-        if (file) {
-            setSelectedImage(file);
+        if (!e.target.files || e.target.files.length === 0) {
+            setSelectedImage(null);
+            setPreviewUrl(null);
+            return;
         }
+        const file = e.target.files[0];
+        if (!file.type.match('image.*')) {
+            alert('Please select an image file (jpg, png, etc.)');
+            return;
+        }
+        setSelectedImage(file);
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            setPreviewUrl(event.target?.result as string);
+        };
+        reader.readAsDataURL(file);
     };
 
     const handleImageUpload = async () => {
@@ -28,10 +42,17 @@ export default function AdminPage() {
             alert("Please select an image first.");
             return;
         }
+        if (selectedPages.length === 0) {
+            alert("Please select at least one page.");
+            return;
+        }
 
+        setUploading(true);
         const formData = new FormData();
         formData.append("cover", selectedImage);
         formData.append("page", selectedPages.join(","));
+
+        console.log("Uploading with formData:", formData);
 
         try {
             const response = await axios.post("http://localhost:3030/img", formData, {
@@ -40,13 +61,22 @@ export default function AdminPage() {
                 },
             });
 
-            console.log("Image uploaded successfully:", response.data);
-            alert("Image updated successfully!");
-        } catch (error) {
+            console.log("Upload response:", response.data);
+            alert(`Image updated successfully! URL: ${response.data.url}`);
+
+            // Refresh pages
+            await Promise.all(selectedPages.map(page =>
+                axios.get(`http://localhost:3030/img/${page}?t=${Date.now()}`)
+            ));
+
+        } catch (error: any) {
             console.error("Error uploading image:", error);
-            alert("Error uploading image.");
+            alert(error.response?.data?.error || "Error uploading image.");
+        } finally {
+            setUploading(false);
         }
     };
+
 
     const removePage = (pageToRemove: string) => {
         setSelectedPages(selectedPages.filter(page => page !== pageToRemove));
@@ -54,26 +84,7 @@ export default function AdminPage() {
 
     return (
         <div className="p-6 max-w-2xl mx-auto">
-            <h1 className="text-2xl font-bold mb-6">Change Cover Image for Multiple Pages</h1>
-
-            <div className="mb-6">
-                <label className="block mb-2 font-medium">Selection Display Mode:</label>
-                <div className="flex gap-4">
-                    <button
-                        className={`px-4 py-2 rounded ${selectionMode === "highlight" ? "bg-blue-500 text-white" : "bg-gray-200"}`}
-                        onClick={() => setSelectionMode("highlight")}
-                    >
-                        Highlight Mode
-                    </button>
-                    <button
-                        className={`px-4 py-2 rounded ${selectionMode === "tags" ? "bg-blue-500 text-white" : "bg-gray-200"}`}
-                        onClick={() => setSelectionMode("tags")}
-                    >
-                        Tag Mode
-                    </button>
-                </div>
-            </div>
-
+            <h1 className="text-2xl font-bold mb-6">Change Cover Image</h1>
             <div className="mb-6">
                 <label className="block mb-2 font-medium">Select Pages to Update:</label>
                 <select
@@ -81,11 +92,8 @@ export default function AdminPage() {
                     value={selectedPages}
                     onChange={handlePageSelection}
                     className={`w-full p-2 border rounded ${selectionMode === "highlight" ? "h-40" : ""}`}
-                    style={selectionMode === "highlight" ? {
-                        backgroundColor: "#f8fafc",
-                    } : {}}
                 >
-                    {["FoodClient", "Login", "Password", "sign-up", "forgotPassword"].map(page => (
+                    {["FoodClient", "Login", "Password", "sign-up", "Settings", "forgotPassword"].map(page => (
                         <option
                             key={page}
                             value={page}
@@ -98,7 +106,6 @@ export default function AdminPage() {
                         </option>
                     ))}
                 </select>
-
                 {selectionMode === "tags" && selectedPages.length > 0 && (
                     <div className="mt-3 flex flex-wrap gap-2">
                         {selectedPages.map(page => (
@@ -119,27 +126,14 @@ export default function AdminPage() {
                 )}
             </div>
 
-            <div className="mb-6">
-                <label className="block mb-2 font-medium">Select cover image:</label>
-                <input
-                    type="file"
-                    onChange={handleImageChange}
-                    className="block w-full text-sm text-gray-500
-                    file:mr-4 file:py-2 file:px-4
-                    file:rounded-md file:border-0
-                    file:text-sm file:font-semibold
-                    file:bg-blue-50 file:text-blue-700
-                    hover:file:bg-blue-100"
-                />
-            </div>
-
+            <CoverImg handleImageChange={handleImageChange} />
             <button
                 onClick={handleImageUpload}
                 className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:bg-blue-300"
-                disabled={!selectedImage || selectedPages.length === 0}
+                disabled={!selectedImage || selectedPages.length === 0 || uploading}
             >
-                Upload Image
+                {uploading ? "Uploading..." : "Upload Image"}
             </button>
-        </div>
+        </div >
     );
 }

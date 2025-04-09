@@ -1,6 +1,7 @@
 "use client";
 import React, { createContext, useContext, useState, useEffect } from "react";
 import axios from "axios";
+import { UserOrder } from "@/type";
 type OrderContextType = {
     userOrders: UserOrder[];
     loading: boolean;
