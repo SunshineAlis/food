@@ -1,9 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useCategoryContext } from "../../Provider/CategoryProvider";
-import { Food, AddFoodProps } from "@/type";
 import { ImageUploader } from "./ImageUpload";
-
 const initialValue = {
   foodName: "",
   price: 0,
@@ -19,7 +17,7 @@ export const AddFood = ({ setShowAddFoodModal }: AddFoodProps) => {
   const [newFood, setNewFood] = useState<Omit<Food, "_id">>(initialValue);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
-
+  const API_URL = "https://service-jus0.onrender.com";
   const handleAddFood = async () => {
     setLoading(true);
     const formData = new FormData();
@@ -34,7 +32,7 @@ export const AddFood = ({ setShowAddFoodModal }: AddFoodProps) => {
 
     try {
       const response = await axios.post(
-        "http://localhost:3030/foods",
+        `${API_URL}/foods`,
         formData,
         {
           headers: {
@@ -74,7 +72,6 @@ export const AddFood = ({ setShowAddFoodModal }: AddFoodProps) => {
     e.preventDefault();
     handleAddFood();
   };
-
   return (
     <div className="fixed inset-0 bg-black bg-opacity-30 backdrop-blur-sm flex items-center justify-center z-50">
       <form
@@ -152,12 +149,10 @@ export const AddFood = ({ setShowAddFoodModal }: AddFoodProps) => {
             ))}
           </select>
         </div>
-
         <ImageUploader
           imagePreview={imagePreview}
           handleImageChange={handleImageChange}
         />
-
         <div className="flex justify-end gap-3 mt-4">
           <button
             type="button"

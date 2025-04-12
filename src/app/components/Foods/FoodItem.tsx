@@ -1,23 +1,7 @@
 import React from "react";
 import { PenIcon } from "lucide-react";
 
-type Food = {
-    _id: string;
-    foodName: string;
-    price: number;
-    ingredients: string;
-    image?: string | null | File;
-    categoryId?: string;
-    imageUrl?: string;
-};
-
-type FoodItemProps = {
-    food: Food;
-    onEdit: () => void;
-    onDelete?: () => void;
-};
-
-const FoodItem: React.FC<FoodItemProps> = ({ food, onEdit, onDelete }) => {
+const FoodItem: React.FC<FoodItemProps> = ({ food, onEdit, }) => {
     return (
         <div className="relative border border-gray-300 shadow-lg flex flex-col justify-center items-center rounded-xl bg-white p-4">
             {food.image && (
@@ -39,7 +23,6 @@ const FoodItem: React.FC<FoodItemProps> = ({ food, onEdit, onDelete }) => {
                     {food.ingredients}
                 </span>
             </p>
-
             <button
                 className="absolute top-2 right-6 p-1 bg-white rounded-full shadow"
                 onClick={onEdit}

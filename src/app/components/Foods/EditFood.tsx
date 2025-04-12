@@ -2,12 +2,12 @@ import React, { useState, useRef } from "react";
 import axios from "axios";
 import { useCategoryContext } from "../../Provider/CategoryProvider";
 import { FaTrashCan } from "react-icons/fa6";
-import { EditFoodProps } from "@/type";
 import { ImageUploader } from "./ImageUpload";
 export const EditFood = ({ editingFood, setEditingFood }: EditFoodProps) => {
   const [imagePreview, setImagePreview] = useState<string | null>(editingFood.imageUrl || null);
   const { updateFoodInCategory, refetch, deleteFoodFromCategory } = useCategoryContext();
   const [message, setMessage] = useState<string | null>(null);
+  const API_URL = "https://service-jus0.onrender.com";
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files ? e.target.files[0] : null;
     if (file) {
@@ -30,7 +30,7 @@ export const EditFood = ({ editingFood, setEditingFood }: EditFoodProps) => {
         formData.append("image", editingFood.image);
       }
 
-      await axios.put(`http://localhost:3030/foods/${editingFood._id}`, formData, {
+      await axios.put(`${API_URL}/foods/${editingFood._id}`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
@@ -51,21 +51,20 @@ export const EditFood = ({ editingFood, setEditingFood }: EditFoodProps) => {
   const handleDelete = async () => {
     try {
       if (editingFood && editingFood._id) {
-        await axios.delete(`http://localhost:3030/foods/${editingFood._id}`);
+        await axios.delete(`${API_URL}/foods/${editingFood._id}`);
         deleteFoodFromCategory(editingFood._id, editingFood.categoryId || "");
         refetch();
         setMessage("Food successfully deleted!");
         setTimeout(() => {
           setMessage(null);
           setEditingFood(null);
-        }, 2000);
+        }, 1000);
       }
     } catch (error) {
       setMessage("Error deleting food. Please try again!");
       setTimeout(() => setMessage(null), 2000);
     }
   };
-
   return (
     <div className="fixed inset-0 bg-black bg-opacity-30 backdrop-blur-sm flex items-center justify-center z-50">
       <div className="bg-white p-6 rounded-lg w-full md:w-[60%] lg:w-[40%] max-h-[90vh] overflow-y-auto shadow-lg">

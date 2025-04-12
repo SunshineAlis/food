@@ -2,14 +2,13 @@
 import { useState } from "react";
 import axios from "axios";
 import { CoverImg } from "../components/coverImg";
-
 export default function AdminPage() {
     const [selectedImage, setSelectedImage] = useState<File | null>(null);
     const [selectedPages, setSelectedPages] = useState<string[]>([]);
     const [selectionMode, setSelectionMode] = useState<"highlight" | "tags">("tags"); // Default to "tags"
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
     const [uploading, setUploading] = useState(false);
-
+    const API_URL = "https://service-jus0.onrender.com";
     const handlePageSelection = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const value = e.target.value;
         if (selectedPages.includes(value)) {
@@ -36,7 +35,6 @@ export default function AdminPage() {
         };
         reader.readAsDataURL(file);
     };
-
     const handleImageUpload = async () => {
         if (!selectedImage) {
             alert("Please select an image first.");
@@ -46,16 +44,12 @@ export default function AdminPage() {
             alert("Please select at least one page.");
             return;
         }
-
         setUploading(true);
         const formData = new FormData();
         formData.append("cover", selectedImage);
         formData.append("page", selectedPages.join(","));
-
-        console.log("Uploading with formData:", formData);
-
         try {
-            const response = await axios.post("http://localhost:3030/img", formData, {
+            const response = await axios.post(`${API_URL}/img`, formData, {
                 headers: {
                     "Content-Type": "multipart/form-data",
                 },
@@ -64,11 +58,9 @@ export default function AdminPage() {
             console.log("Upload response:", response.data);
             alert(`Image updated successfully! URL: ${response.data.url}`);
 
-            // Refresh pages
             await Promise.all(selectedPages.map(page =>
-                axios.get(`http://localhost:3030/img/${page}?t=${Date.now()}`)
+                axios.get(`${API_URL}/img/${page}?t=${Date.now()}`)
             ));
-
         } catch (error: any) {
             console.error("Error uploading image:", error);
             alert(error.response?.data?.error || "Error uploading image.");
@@ -76,12 +68,9 @@ export default function AdminPage() {
             setUploading(false);
         }
     };
-
-
     const removePage = (pageToRemove: string) => {
         setSelectedPages(selectedPages.filter(page => page !== pageToRemove));
     };
-
     return (
         <div className="p-6 max-w-2xl mx-auto">
             <h1 className="text-2xl font-bold mb-6">Change Cover Image</h1>
@@ -93,7 +82,7 @@ export default function AdminPage() {
                     onChange={handlePageSelection}
                     className={`w-full p-2 border rounded ${selectionMode === "highlight" ? "h-40" : ""}`}
                 >
-                    {["FoodClient", "Login", "Password", "sign-up", "Settings", "forgotPassword"].map(page => (
+                    {["FoodClient", "Login", "Password", "sign-up", "settings", "forgotPassword"].map(page => (
                         <option
                             key={page}
                             value={page}
@@ -125,7 +114,6 @@ export default function AdminPage() {
                     </div>
                 )}
             </div>
-
             <CoverImg handleImageChange={handleImageChange} />
             <button
                 onClick={handleImageUpload}

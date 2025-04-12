@@ -1,4 +1,4 @@
-export type Food = {
+type Food = {
     _id: string;
     foodName: string;
     price: number;
@@ -7,21 +7,36 @@ export type Food = {
     categoryId?: string;
     imageUrl?: string;
 };
-export type EditFoodProps = {
+type EditFoodProps = {
     editingFood: Food;
     setEditingFood: React.Dispatch<React.SetStateAction<Food | null>>;
 };
-export type AddFoodProps = {
+type AddFoodProps = {
     setShowAddFoodModal: (value: boolean) => void;
 };
-
-export type Category = {
-    _id?: string;
-    categoryName: string;
-    foodCount?: number;
-    foods?: Food[]
-    _id: string;
-    categoryName: string;
+type CategoryContextType = {
+    categories: Category[];
+    loading: boolean;
+    error: string | null;
+    refetch: () => void;
+    addCategory: (newCategory: Category) => void;
+    updateCategory: (updatedCategory: Category) => void;
+    deleteCategory: (categoryId: string) => void;
+    addFoodToCategory: (newFood: Food) => void;
+    updateFoodInCategory: (updatedFood: Food) => void;
+    deleteFoodFromCategory: (foodId: string, categoryId: string) => void;
+};
+type OrderContextType = {
+    userOrders: UserOrder[];
+    loading: boolean;
+    error: string | null;
+    refetch: () => void;
+    handleDeleteOrder: (orderId: string) => void;
+    handleStatusChange: (orderId: string, newStatus: string) => void;
+};
+type FoodItemProps = {
+    food: Food;
+    onEdit: () => void;
 };
 type CategoryId = {
     _id: string;
@@ -52,6 +67,10 @@ type UserOrder = {
     orders: Order[];
     totalSpent: number;
 }
+
+type HoveredOrderProps = {
+    order: Order;
+};
 type Food = {
     _id: string;
     foodName: string;
@@ -61,24 +80,25 @@ type Food = {
     categoryId?: string;
     imageUrl?: string;
 };
-type HoveredOrderProps = {
-    order: Order;
+type Category = {
+    foodCount: number;
+    _id: string;
+    categoryName: string;
+    foods?: Food[];
+    _id: string;
+    categoryName: string;
+    foods?: Food[];
 };
 // type Category = {
-//     foodCount: number;
+//     _id?: string;
+//     categoryName: string;
+//     foodCount?: number;
+//     foods?: Food[]
 //     _id: string;
 //     categoryName: string;
-//     foods?: Food[];
 // };
-// type CategoryContextType = {
-//     categories: Category[];
-//     loading: boolean;
-//     error: string | null;
-//     refetch: () => void;
-//     addCategory: (newCategory: Category) => void;
-//     updateCategory: (updatedCategory: Category) => void;
-//     deleteCategory: (categoryId: string) => void;
-//     addFoodToCategory: (newFood: Food) => void;
-//     updateFoodInCategory: (updatedFood: Food) => void;
-//     deleteFoodFromCategory: (foodId: string, categoryId: string) => void;
-// };
+
+type ImageUploaderProps = {
+    imagePreview: string | null;
+    handleImageChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+};

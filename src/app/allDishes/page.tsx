@@ -4,23 +4,17 @@ import FoodItem from "../components/Foods/FoodItem";
 import { AddFood } from "../components/Foods/AddFood";
 import { EditFood } from "../components/Foods/EditFood";
 import { useCategoryContext } from "../Provider/CategoryProvider";
-import { useRouter } from "next/navigation";
-import { Food } from "@/type"
+
 export default function AllDishes() {
     const { categories } = useCategoryContext();
     const [selectedFood, setSelectedFood] = useState<Food | null>(null);
-
     const [showAddFoodModal, setShowAddFoodModal] = useState(false);
-    const router = useRouter();
-
     const handleEdit = (food: Food) => {
         setSelectedFood(food);
     };
-
     const allFoods = categories.flatMap((category) => category.foods || []);
     const displayedFoods = allFoods
     const allFoodsCount = allFoods.length;
-
     return (
         <div className="max-w-[1100px] w-[100%] m-auto">
             <h1 className="p-4 text-2xl font-bold">All dishes({allFoodsCount})</h1>
@@ -40,14 +34,13 @@ export default function AllDishes() {
                     </div>
                 </div>
 
-                {
-                    displayedFoods.map((food) => (
-                        <FoodItem
-                            key={food._id}
-                            food={food}
-                            onEdit={() => handleEdit(food)}
-                        />
-                    ))
+                {displayedFoods.map((food) => (
+                    <FoodItem
+                        key={food._id}
+                        food={food}
+                        onEdit={() => handleEdit(food)}
+                    />
+                ))
                 }
 
                 {showAddFoodModal && <AddFood setShowAddFoodModal={setShowAddFoodModal} />}

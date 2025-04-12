@@ -1,6 +1,5 @@
 "use client"
 import React from "react";
-
 export const OrdersTableHead: React.FC = () => {
     return (
         <thead className="bg-blue-200">

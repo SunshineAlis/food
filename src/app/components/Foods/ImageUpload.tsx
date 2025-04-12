@@ -1,21 +1,13 @@
 "use client"
 import React, { useRef } from "react";
-
-type ImageUploaderProps = {
-    imagePreview: string | null;
-    handleImageChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-};
-
 export const ImageUploader = ({
     imagePreview,
     handleImageChange,
 }: ImageUploaderProps) => {
     const fileInputRef = useRef<HTMLInputElement>(null);
-
     const handleImageClick = () => {
         fileInputRef.current?.click();
     };
-
     return (
         <div className="relative">
             <label htmlFor="image" className="block text-sm font-medium text-gray-700">

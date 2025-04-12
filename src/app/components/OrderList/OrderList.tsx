@@ -16,7 +16,6 @@ const OrdersTable: React.FC = () => {
         };
         return new Date(dateString).toLocaleDateString("en-US", options);
     };
-
     return (
         <div className="p-4 max-w-7xl mx-auto">
             <h2 className="text-2xl font-bold mb-6 text-gray-800">Order List</h2>

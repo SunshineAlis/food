@@ -5,22 +5,18 @@ import { AddFood } from "./AddFood";
 import { EditFood } from "./EditFood";
 import { useCategoryContext } from "../../Provider/CategoryProvider";
 import { useRouter } from "next/navigation";
-import { Food } from "@/type"
 
 export default function Foods() {
-  const { categories, deleteFoodFromCategory, refetch } = useCategoryContext();
+  const { categories } = useCategoryContext();
   const [selectedFood, setSelectedFood] = useState<Food | null>(null);
   const [showAddFoodModal, setShowAddFoodModal] = useState(false);
   const router = useRouter();
-
   const handleEdit = (food: Food) => {
     setSelectedFood(food);
   };
-
   const allFoods = categories.flatMap((category) => category.foods || []);
   const displayedFoods = allFoods.slice(0, 3);
   const allFoodsCount = allFoods.length;
-
   return (
     <div className="p-4 bg-gray-100 max-w-[900px] w-full m-auto rounded-2xl">
       <h2 className="text-xl font-bold mb-4">Foods by Category</h2>

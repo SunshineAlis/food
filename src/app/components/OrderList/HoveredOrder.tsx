@@ -1,7 +1,5 @@
 "use client";
-import { HoveredOrderProps } from "@/type";
 import React from "react";
-
 const HoveredOrder: React.FC<HoveredOrderProps> = ({ order }) => {
     return (
         <div className="absolute z-10 left-0 mt-2 w-64 bg-white border border-gray-200 rounded-lg shadow-lg p-3">

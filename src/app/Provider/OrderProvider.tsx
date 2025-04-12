@@ -1,19 +1,7 @@
 "use client";
 import React, { createContext, useContext, useState, useEffect } from "react";
 import axios from "axios";
-import { UserOrder } from "@/type";
-type OrderContextType = {
-    userOrders: UserOrder[];
-    loading: boolean;
-    error: string | null;
-    refetch: () => void;
-    handleDeleteOrder: (orderId: string) => void;
-    handleStatusChange: (orderId: string, newStatus: string) => void;
-};
-
-
 export const OrderContext = createContext<OrderContextType | undefined>(undefined);
-
 export const useOrderContext = () => {
     const context = useContext(OrderContext);
     if (!context) {
@@ -21,15 +9,14 @@ export const useOrderContext = () => {
     }
     return context;
 };
-
 export const OrderProvider = ({ children }: { children: React.ReactNode }) => {
     const [userOrders, setUserOrders] = useState<UserOrder[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-
+    const API_URL = "https://service-jus0.onrender.com";
     const fetchOrders = async () => {
         try {
-            const res = await axios.get<{ data: UserOrder[] }>("http://localhost:3030/order");
+            const res = await axios.get<{ data: UserOrder[] }>(`${API_URL}/order`);
             setUserOrders(res.data.data);
             setError(null);
         } catch (err) {
@@ -38,14 +25,12 @@ export const OrderProvider = ({ children }: { children: React.ReactNode }) => {
             setLoading(false);
         }
     };
-
     useEffect(() => {
         fetchOrders();
     }, []);
-
     const handleDeleteOrder = async (orderId: string) => {
         try {
-            const response = await axios.delete(`http://localhost:3030/order/${orderId}`);
+            const response = await axios.delete(`${API_URL}/order/${orderId}`);
             if (response.data.success) {
                 setUserOrders(prev =>
                     prev
@@ -63,10 +48,9 @@ export const OrderProvider = ({ children }: { children: React.ReactNode }) => {
             setError(err.response?.data?.message || err.message || "Delete failed");
         }
     };
-
     const handleStatusChange = async (orderId: string, newStatus: string) => {
         try {
-            await axios.put(`http://localhost:3030/order/${orderId}`, { orderStatus: newStatus });
+            await axios.put(`${API_URL}/order/${orderId}`, { orderStatus: newStatus });
             setUserOrders(prev =>
                 prev.map(user => ({
                     ...user,
@@ -80,7 +64,6 @@ export const OrderProvider = ({ children }: { children: React.ReactNode }) => {
             setError("Failed to update order status.");
         }
     };
-
     return (
         <OrderContext.Provider
             value={{
